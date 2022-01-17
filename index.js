@@ -1,17 +1,29 @@
 const discord = require('discord.io');
-const tokenConstant = require('./token.constant');
+const tokenConstant = require('./constants/token.constant');
 const cron = require("cron").CronJob;
-const axios = require("axios").default;
+const userService = require('./services/userFunctions');
+const axios = require('./constants/axiosSetup').axios;
+const baseUrl = require('./constants/stringConstants').baseUrl;
 
 var bot = new discord.Client({
     autorun: true,
     token: tokenConstant.AUTH_TOKEN
 });
 
-bot.on('ready', () => {
-    console.log("Bot is ready");
 
+//Timed and Event Triggers
+bot.on('ready', () => {
+    console.log("Bot is Ready");
 });
+
+bot.on('message', (userName, userId, channelId, message) => {
+    axios.get(`${baseUrl}/api/users/${userId}/exists`).then((response) => {
+        if (!response.data) {
+            userService.createUser(userId, userName);
+        }
+    });
+});
+
 
 var HourlyJoke = new cron(
     '0 0 7-23 * * * ',
