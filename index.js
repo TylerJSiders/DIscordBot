@@ -1,15 +1,9 @@
-const https = require('https');
 const discord = require('discord.io');
-const tokenConstant = require('./token.constant');
+const tokenConstant = require('./constants/token.constant');
 const cron = require("cron").CronJob;
-
-const axios = require("axios").default.create({
-    httpsAgent: new https.Agent({
-        rejectUnauthorized: false
-    })
-});
-
-const baseUrl = 'https://localhost:7140';
+const userService = require('./services/userFunctions');
+const axios = require('./constants/axiosSetup').axios;
+const baseUrl = require('./constants/stringConstants').baseUrl;
 
 var bot = new discord.Client({
     autorun: true,
@@ -25,7 +19,7 @@ bot.on('ready', () => {
 bot.on('message', (userName, userId, channelId, message) => {
     axios.get(`${baseUrl}/api/users/${userId}/exists`).then((response) => {
         if (!response.data) {
-            createUser(userId, userName);
+            userService.createUser(userId, userName);
         }
     });
 });
@@ -52,18 +46,3 @@ var HourlyJoke = new cron(
     true,
     "America/New_York"
 );
-
-//Functions
-function createUser(userId, userName) {
-    let userModel = {
-        id: userId,
-        userName: userName
-    };
-
-    axios.post(`${baseUrl}/api/users`, userModel).then((result) => {
-        //Do Nothing at the moment
-        //TODO add a welcome message for first posters
-    }, () => {
-        console.log("An Error has happened.");
-    });
-}
