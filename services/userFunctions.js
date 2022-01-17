@@ -6,7 +6,7 @@ function createUser(userId, userName) {
         id: userId,
         userName: userName
     };
-    console.log("Post")
+
     axios.post(`${baseUrl}/api/users`, userModel).then((result) => {
         //Do Nothing at the moment
         //TODO add a welcome message for first posters
